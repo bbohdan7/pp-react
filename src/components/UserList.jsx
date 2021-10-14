@@ -9,24 +9,107 @@ class UserList extends React.Component {
         super(props)
 
         this.state = {
-            users: []
+            users: [],
+            sortByIDFlag: true,
+            sortByEmailFlag: true,
+            searchID: 0,
+            fullUserArrSize: 0,
+            alphabet: [
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+            ],
         }
 
         this.loadUsers = this.loadUsers.bind(this)
+        this.sortByID = this.sortByID.bind(this)
+        this.searchByID = this.searchByID.bind(this)
+        this.searchByEmail = this.searchByEmail.bind(this)
+        this.sortByEmail = this.sortByEmail.bind(this)
+        this.deleteUser = this.deleteUser.bind(this)
     }
 
     componentDidMount() {
         this.loadUsers()
     }
 
-    loadUsers() {
-        UserService.findAll().then(response => {
+    sortByID() {
+        let arr = this.state.users
+
+        console.log(`Before sorting ${JSON.stringify(arr)}`)
+
+        if (this.state.sortByIDFlag) {
+            arr = arr.sort((a, b) => b.id - a.id)
+        } else {
+            arr = arr.sort((a, b) => a.id - b.id)
+        }
+        this.setState({
+            sortByIDFlag: !this.state.sortByIDFlag,
+            users: arr
+        })
+    }
+
+    sortByEmail() {
+        let arr = this.state.users
+
+        if (this.state.sortByEmailFlag) {
+            arr = arr.sort((a, b) => {
+                let first = a.email.charAt(0).toLowerCase()
+                let last = b.email.charAt(0).toLowerCase()
+
+                return this.state.alphabet.indexOf(first) - this.state.alphabet.indexOf(last)
+            })
+        } else {
+            arr = arr.sort((a, b) => {
+                let first = a.email.charAt(0).toLowerCase()
+                let last = b.email.charAt(0).toLowerCase()
+
+                return this.state.alphabet.indexOf(last) - this.state.alphabet.indexOf(first)
+            })
+        }
+        this.setState({
+            sortByEmailFlag: !this.state.sortByEmailFlag,
+            users: arr
+        })
+    }
+
+    searchByID(event) {
+        this.loadUsers().then(() => {
             this.setState({
-                users: response.data
+                users: this.state.users.filter(u => u.id == event.target.value)
             })
         })
-            .then(() => console.log(JSON.stringify(this.state.users)))
-            .catch(err => console.log(err))
+
+        if (event.target.value == 0) {
+            console.log("Loading from zero");
+            this.loadUsers()
+        }
+    }
+
+    searchByEmail(e) {
+        this.loadUsers().then(() => {
+            this.setState({
+                users: this.state.users.filter(u => u.email.includes(e.target.value))
+            })
+        })
+        if (e.target.value == "") this.loadUsers()
+    }
+
+    async loadUsers() {
+        return UserService.findAll().then(response => {
+            this.setState({
+                users: response.data,
+                fullUserArrSize: response.data.length
+            })
+        })
+    }
+
+    deleteUser(id){
+        UserService.delete(id)
+        .then(() => {
+            console.log(`User ${id} has been successfully delete`)
+        })
+        .then(() => {
+            this.loadUsers()
+        })
     }
 
     render() {
@@ -36,13 +119,26 @@ class UserList extends React.Component {
                 <div className="col-md-7">
                     <h1>User List</h1>
 
-                    <Table striped bordered hover variant="dark">
+                    <Table striped bordered hover >
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>
+                                    {this.state.sortByIDFlag
+                                        ? (<i onClick={this.sortByID} className="bi bi-caret-down"></i>)
+                                        : (<i onClick={this.sortByID} className="bi bi-caret-up"></i>)}
+                                    ID
+                                    <input type="number" min="0" max={this.state.fullUserArrSize} style={{ width: "50px" }} placeholder="Id" onChange={this.searchByID} />
+                                </th>
                                 <th>First name</th>
                                 <th>Last name</th>
-                                <th>Email</th>
+                                <th>
+                                    {this.state.sortByEmailFlag
+                                        ? (<i onClick={this.sortByEmail} className="bi bi-caret-down"></i>)
+                                        : (<i onClick={this.sortByEmail} className="bi bi-caret-up"></i>)}
+                                    ID
+                                    Email
+                                    <input type="text" style={{ width: "50px" }} placeholder="Email" onChange={this.searchByEmail} />
+                                </th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -57,7 +153,7 @@ class UserList extends React.Component {
                                         <Form>
                                             <Button variant="warning"><i className="bi bi-wrench"></i></Button>{' '}
                                             <Button variant="info"><i className="bi bi-eye"></i></Button>{' '}
-                                            <Button variant="danger"><i className="bi bi-trash"></i></Button>
+                                            <Button variant="danger" onClick={() => this.deleteUser(usr.id)}><i className="bi bi-trash"></i></Button>
                                         </Form>
                                     </td>
                                 </tr>
