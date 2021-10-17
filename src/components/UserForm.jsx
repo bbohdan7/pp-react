@@ -48,7 +48,7 @@ class UserForm extends React.Component {
             return (
                 <div className="row">
                     <div className="col-md-4"></div>
-                    <div className="col-md-4" style={{ marginTop: "2em", borderRadius: "3em", padding: "2em", boxShadow: "0px 0px 20px indigo" }}>
+                    <div className="col-md-4" style={{ marginTop: "2em", borderRadius: "3em", padding: "2em", boxShadow: "0px 0px 20px #bbb000" }}>
                         <h1>Adding a new user {this.props.username}</h1>
 
                         <Form>

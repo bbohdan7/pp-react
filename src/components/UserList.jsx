@@ -2,6 +2,7 @@ import React from "react";
 import UserService from "../services/UserService";
 import { Table, Form, Button, Modal } from 'react-bootstrap'
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import { NavLink } from 'react-router-dom'
 
 class UserList extends React.Component {
 
@@ -159,8 +160,8 @@ class UserList extends React.Component {
                                     <td>{usr.email}</td>
                                     <td>
                                         <Form>
-                                            <Button variant="warning"><i className="bi bi-wrench"></i></Button>{' '}
-                                            <Button variant="info"><i className="bi bi-eye"></i></Button>{' '}
+                                            <NavLink className="btn btn-warning" to={"/edit/" + usr.id}><i className="bi bi-wrench"></i></NavLink>{' '}
+                                            <NavLink className="btn btn-info" to={"/usr/" + usr.id }><i className="bi bi-eye"></i></NavLink>{' '}
                                             <Button variant="danger" onClick={() => this.changeShowModalState(usr.id)}><i className="bi bi-trash"></i></Button>
                                         </Form>
                                     </td>

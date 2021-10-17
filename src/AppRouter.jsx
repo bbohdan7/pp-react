@@ -2,6 +2,8 @@ import Header from './components/Header';
 import UserList from './components/UserList';
 import AddUser from './components/AddUser';
 import { BrowserRouter, Switch, Route, NavLink } from 'react-router-dom';
+import ShowUser from './components/ShowUser';
+import EditUser from './components/EditUser';
 
 const AppRouter = () => {
   return (
@@ -38,6 +40,8 @@ const AppRouter = () => {
             <Route component={Header} path="/" exact={true} />
             <Route component={UserList} path="/users" exact={true} />
             <Route component={AddUser} path="/add" exact={true} />
+            <Route component={ShowUser} path="/usr/:id" />
+            <Route component={EditUser} path="/edit/:id" />
           </Switch>
         </div>
       </div>

@@ -9,7 +9,15 @@ class UserService {
         return http.post("/users", user)
     }
 
-    delete(id){
+    find(id) {
+        return http.get(`/users/${id}`)
+    }
+
+    update(id, usr){
+        return http.put(`/users/${id}`, usr)
+    }
+
+    delete(id) {
         return http.delete(`/users/${id}`);
     }
 }
