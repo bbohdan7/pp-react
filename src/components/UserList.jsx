@@ -1,6 +1,6 @@
 import React from "react";
 import UserService from "../services/UserService";
-import { Table, Form, Button } from 'react-bootstrap'
+import { Table, Form, Button, Modal } from 'react-bootstrap'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 class UserList extends React.Component {
@@ -17,6 +17,8 @@ class UserList extends React.Component {
             alphabet: [
                 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
             ],
+            showModal: false,
+            usrToDelete: 0
         }
 
         this.loadUsers = this.loadUsers.bind(this)
@@ -25,6 +27,7 @@ class UserList extends React.Component {
         this.searchByEmail = this.searchByEmail.bind(this)
         this.sortByEmail = this.sortByEmail.bind(this)
         this.deleteUser = this.deleteUser.bind(this)
+        this.changeModelShowStatus = this.changeShowModalState.bind(this)
     }
 
     componentDidMount() {
@@ -44,6 +47,13 @@ class UserList extends React.Component {
         this.setState({
             sortByIDFlag: !this.state.sortByIDFlag,
             users: arr
+        })
+    }
+
+    changeShowModalState(id) {
+        this.setState({
+            showModal: !this.state.showModal,
+            usrToDelete: id
         })
     }
 
@@ -102,14 +112,12 @@ class UserList extends React.Component {
         })
     }
 
-    deleteUser(id){
-        UserService.delete(id)
-        .then(() => {
-            console.log(`User ${id} has been successfully delete`)
-        })
-        .then(() => {
-            this.loadUsers()
-        })
+    deleteUser() {
+        UserService.delete(this.state.usrToDelete)
+            .then(() => {
+                this.loadUsers()
+                this.setState({ usrToDelete: 0, showModal: false })
+            })
     }
 
     render() {
@@ -153,13 +161,24 @@ class UserList extends React.Component {
                                         <Form>
                                             <Button variant="warning"><i className="bi bi-wrench"></i></Button>{' '}
                                             <Button variant="info"><i className="bi bi-eye"></i></Button>{' '}
-                                            <Button variant="danger" onClick={() => this.deleteUser(usr.id)}><i className="bi bi-trash"></i></Button>
+                                            <Button variant="danger" onClick={() => this.changeShowModalState(usr.id)}><i className="bi bi-trash"></i></Button>
                                         </Form>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
+
+                    <Modal show={this.state.showModal} onHide={this.changeShowModalState}>
+                        <Modal.Header>
+                            <Modal.Title>Are you sure you want to delete?</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>You're going to delete user with ID {this.state.usrToDelete}, are you sure?</Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="danger" onClick={() => { this.setState({ showModal: false }) }}><i className="bi bi-x-lg"></i> No</Button>
+                            <Button variant="success" onClick={this.deleteUser}><i className="bi bi-check"></i> Yes</Button>
+                        </Modal.Footer>
+                    </Modal>
                 </div>
                 <div className="col-md-1"></div>
             </div>
